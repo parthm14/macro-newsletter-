@@ -19,6 +19,7 @@ def build_html_email(
 ) -> str:
     """
     Build a simple but clean HTML email body containing the given articles.
+    This HTML is also what we'll serve as index.html for GitHub Pages.
     """
     articles_list = list(articles)
 
@@ -77,7 +78,7 @@ def build_html_email(
           {body_html}
           <tr>
             <td style="padding-top:20px; font-size:11px; color:#999;">
-              You are receiving this preview locally. In production, this would be sent automatically each morning.
+              This is a preview build of the Daily Macro Brief.
             </td>
           </tr>
         </table>
@@ -154,11 +155,17 @@ if __name__ == "__main__":
     html_body = build_html_email(subject, filtered)
     text_body = build_text_email(subject, filtered)
 
+    # Write preview for local viewing
     preview_path = "preview.html"
     with open(preview_path, "w", encoding="utf-8") as f:
         f.write(html_body)
 
-    logging.info("Wrote HTML preview to %s", preview_path)
+    # Write index.html for GitHub Pages (served at /)
+    index_path = "index.html"
+    with open(index_path, "w", encoding="utf-8") as f:
+        f.write(html_body)
+
+    logging.info("Wrote HTML preview to %s and %s", preview_path, index_path)
 
     print("\n=== TEXT VERSION (first ~40 lines) ===\n")
     for line in text_body.splitlines()[:40]:
