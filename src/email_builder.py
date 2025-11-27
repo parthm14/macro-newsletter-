@@ -18,40 +18,77 @@ def build_html_email(
     articles: Iterable[Article],
 ) -> str:
     """
-    Build a simple but clean HTML email body containing the given articles.
+    Build a nicer-looking HTML email / web page containing the given articles.
     This HTML is also what we'll serve as index.html for GitHub Pages.
     """
     articles_list = list(articles)
 
     if not articles_list:
-        body_html = "<p>No macro-relevant stories found today.</p>"
+        articles_html = """
+        <tr>
+          <td style="padding: 24px; text-align: center; color: #6b7280; font-size: 14px;">
+            No macro-relevant stories found today.
+          </td>
+        </tr>
+        """
     else:
         rows = []
         for a in articles_list:
             ts = _format_timestamp(a.published)
-            ts_html = f"<span style='color:#777;font-size:12px;'>{ts}</span>" if ts else ""
-            source_html = f"<span style='font-weight:bold;'>{a.source}</span>"
+            ts_text = f"{ts}" if ts else ""
+            source_text = a.source or "Unknown source"
+
+            summary_text = a.summary.strip()
+            if len(summary_text) > 280:
+                summary_text = summary_text[:280].rstrip() + "..."
 
             rows.append(
                 f"""
                 <tr>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eee;">
-                    <a href="{a.link}" style="font-size:15px; color:#0056b3; text-decoration:none;">
+                  <td style="
+                    padding: 16px 18px;
+                    border-radius: 12px;
+                    border: 1px solid #e5e7eb;
+                    background-color: #ffffff;
+                    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+                    margin-bottom: 12px;
+                  ">
+                    <a href="{a.link}" style="
+                      font-size: 16px;
+                      font-weight: 600;
+                      color: #0f172a;
+                      text-decoration: none;
+                      line-height: 1.4;
+                    ">
                       {a.title}
-                    </a><br/>
-                    <span style="font-size:13px; color:#555;">
-                      {source_html}
-                      {" · " if ts_html else ""}{ts_html}
-                    </span><br/>
-                    <span style="font-size:13px; color:#444;">
-                      {a.summary[:280]}{"..." if len(a.summary) > 280 else ""}
-                    </span>
+                    </a>
+                    <div style="margin-top: 6px; margin-bottom: 8px; font-size: 12px; color: #6b7280; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                      <span style="
+                        display: inline-block;
+                        padding: 2px 8px;
+                        border-radius: 999px;
+                        background-color: #eff6ff;
+                        color: #1d4ed8;
+                        font-weight: 500;
+                      ">
+                        {source_text}
+                      </span>
+                      {f'<span style="color:#9ca3af;">• {ts_text}</span>' if ts_text else ''}
+                    </div>
+                    <div style="font-size: 13px; color: #374151; line-height: 1.5;">
+                      {summary_text}
+                    </div>
                   </td>
                 </tr>
+                <tr><td style="height: 10px;"></td></tr>
                 """
             )
 
-        body_html = "\n".join(rows)
+        articles_html = "\n".join(rows)
+
+    # Slightly cleaner heading text for web view
+    display_title = "Daily Macro Brief"
+    display_subtitle = "Curated macro & markets headlines from major global sources."
 
     html = f"""\
 <!DOCTYPE html>
@@ -59,26 +96,78 @@ def build_html_email(
 <head>
   <meta charset="UTF-8" />
   <title>{subject}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
-<body style="margin:0; padding:0; background-color:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;">
+<body style="
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at top left, #1e293b, #020617 55%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: transparent; padding: 24px 12px 40px;">
     <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0"
-               style="background-color:#ffffff; border-radius:6px; padding:20px; font-family:Arial, sans-serif;">
+      <td align="center">
+        <table width="720" cellpadding="0" cellspacing="0" border="0" style="
+          max-width: 720px;
+          background-color: #0b1120;
+          border-radius: 18px;
+          padding: 2px;
+          box-shadow: 0 18px 45px rgba(15, 23, 42, 0.6);
+        ">
           <tr>
-            <td style="text-align:left;">
-              <h1 style="margin:0 0 10px; font-size:24px;">Daily Macro Brief</h1>
-              <p style="margin:0 0 10px; font-size:13px; color:#777;">
-                Curated macro &amp; markets headlines from major sources.
-              </p>
-            </td>
-          </tr>
-          <tr><td><hr style="border:none; border-top:1px solid #ddd; margin:10px 0 20px;" /></td></tr>
-          {body_html}
-          <tr>
-            <td style="padding-top:20px; font-size:11px; color:#999;">
-              This is a preview build of the Daily Macro Brief.
+            <td style="
+              background: linear-gradient(145deg, #0f172a 0%, #020617 45%, #111827 100%);
+              border-radius: 16px;
+              padding: 22px 24px 18px;
+              border: 1px solid rgba(148, 163, 184, 0.25);
+            ">
+              <!-- Header -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="text-align:left;">
+                    <div style="font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#93c5fd; margin-bottom:4px;">
+                      Macro Newsletter · Beta
+                    </div>
+                    <h1 style="margin: 0 0 6px; font-size: 24px; line-height: 1.25; color:#e5e7eb;">
+                      {display_title}
+                    </h1>
+                    <p style="margin: 0; font-size: 13px; color:#9ca3af;">
+                      {display_subtitle}
+                    </p>
+                  </td>
+                  <td style="text-align:right; vertical-align:top;">
+                    <div style="
+                      display:inline-block;
+                      padding:6px 10px;
+                      border-radius:999px;
+                      background-color:rgba(15,23,42,0.85);
+                      color:#e5e7eb;
+                      font-size:11px;
+                      border:1px solid rgba(148,163,184,0.35);
+                    ">
+                      {subject}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Divider -->
+              <div style="margin: 14px 0 12px; border-bottom: 1px solid rgba(55, 65, 81, 0.7);"></div>
+
+              <!-- Content area -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0;">
+                {articles_html}
+              </table>
+
+              <!-- Footer -->
+              <div style="margin-top: 18px; padding-top: 10px; border-top: 1px dashed rgba(55, 65, 81, 0.8); font-size:11px; color:#6b7280;">
+                <div style="margin-bottom: 4px;">
+                  Built as an automated macro newsletter prototype (Python · RSS · GitHub Pages).
+                </div>
+                <div style="color:#4b5563;">
+                  This is a demo web view. In production it would be delivered daily by email.
+                </div>
+              </div>
             </td>
           </tr>
         </table>
