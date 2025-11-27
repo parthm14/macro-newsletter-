@@ -86,7 +86,6 @@ def build_html_email(
 
         articles_html = "\n".join(rows)
 
-    # Slightly cleaner heading text for web view
     display_title = "Daily Macro Brief"
     display_subtitle = "Curated macro & markets headlines from major global sources."
 
@@ -124,7 +123,31 @@ def build_html_email(
               <!-- Header -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="text-align:left;">
+                  <td style="text-align:left; vertical-align:top;">
+                    <!-- ISMF logo + name -->
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                      <div style="
+                        width:40px;
+                        height:40px;
+                        border-radius:10px;
+                        overflow:hidden;
+                        background-color:#ffffff;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        box-shadow:0 2px 6px rgba(15,23,42,0.35);
+                      ">
+                        <img src="ismf-logo.png" alt="ISMF logo" style="
+                          max-width:36px;
+                          max-height:36px;
+                          display:block;
+                        ">
+                      </div>
+                      <div style="font-size:15px; font-weight:600; color:#e5e7eb;">
+                        Irish Student Managed Fund (ISMF)
+                      </div>
+                    </div>
+
                     <div style="font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:#93c5fd; margin-bottom:4px;">
                       Macro Newsletter · Beta
                     </div>
@@ -228,7 +251,7 @@ if __name__ == "__main__":
     )
 
     logging.info("Fetching feeds for email preview...")
-    all_articles = fetch_all_feeds(FEED_URLS)
+    all_articles = fetch_all_feeds( FEED_URLS )
     logging.info("Fetched %d total articles", len(all_articles))
 
     filtered = filter_articles(all_articles, MACRO_KEYWORDS, max_articles=MAX_ARTICLES)
